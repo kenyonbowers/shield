@@ -7,8 +7,8 @@ const app = createApp(VueApp)
 app.use(router)
 app.mount('#app')
 
-//import { App } from '@capacitor/app';
+import { App } from '@capacitor/app';
 
-/*App.addListener('backButton', data => {
+App.addListener('backButton', data => {
     window.history.back();
-})*/
+})
