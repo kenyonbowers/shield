@@ -1,15 +1,15 @@
 <template>
     <div class="font-title text-white w-full h-screen" v-if="server && servers">
-        <div v-if="server && channel" class="w-3/4 bg-zinc-700 h-16 pt-5" style="float:right; text-align:center;">
-            {{ server.name }} : {{ channel.name }}
+        <div v-if="server && channel" class="w-3/4 md:w-5/6 bg-zinc-700 h-16 pt-5" style="float:right; text-align:center;">
+            {{ server.name }} - {{ channel.name }}
         </div>
         <div class="flex flex-row w-full">
-            <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 pl-4 pt-2">
+            <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-1/6 pl-4 pt-2">
                 <div v-for="chnl in channels">
                     <button @click="changeChannels(chnl)">{{ chnl.name }}</button>
                 </div>
             </div>
-            <div class="bg-zinc-500 h-full w-1/4 pl-4 pt-2">
+            <div class="bg-zinc-500 h-full w-1/4 md:w-1/6 pl-4 pt-2">
             </div>
             <div id="msg_viewer">
                 <div v-for="msg in messages" :key="msg.id" :id="msg.id" class="flex p-2" style="jusify-content:left;">
