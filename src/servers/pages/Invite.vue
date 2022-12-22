@@ -21,12 +21,16 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router'
 import { getServer, joinServer } from '../../user/services/UserService';
 import Config from '../../config/services/ConfigService';
+import { user } from '../../user/services/UserService';
 const route = useRoute();
 const router = useRouter();
 const server_id = ref();
 const server_icon = ref();
 const server_name = ref();
 onMounted(async()=>{
+    if(user == null){
+        router.push("/")
+    }
     let { id } = route.params
     server_id.value = id;
     var server = await getServer(server_id.value);

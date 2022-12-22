@@ -18,7 +18,7 @@ const router = useRouter();
 onMounted(async()=>{
     console.log(user)
     if(user != null){
-        router.replace("/me")
+        router.push("/me")
     }
 })
 function reloadPage() {

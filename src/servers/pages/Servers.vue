@@ -13,8 +13,14 @@
 <script setup lang="ts">
 import { getAllServers } from '../../user/services/UserService'
 import { onMounted, ref } from 'vue';
+import { useRouter } from "vue-router";
+import { user } from '../../user/services/UserService';
+const router = useRouter();
 const servers = ref();
 onMounted(async()=>{
+    if(user == null){
+        router.push("/")
+    }
     servers.value = await getAllServers();
 });
 </script>

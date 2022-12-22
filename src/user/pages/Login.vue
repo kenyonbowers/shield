@@ -11,7 +11,7 @@ import { ref, onMounted } from 'vue';
 const router = useRouter();
 onMounted(async()=>{
     if(user != null){
-        router.replace("/me")
+        router.push("/me")
     }
 })
 const email_model = ref("");

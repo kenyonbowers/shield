@@ -32,7 +32,7 @@ const tab_states = {
 };
 onMounted(async()=>{
     if(user == null){
-        router.replace("/")
+        router.push("/")
     }
     tab_state.value = tab_states.account;
 })

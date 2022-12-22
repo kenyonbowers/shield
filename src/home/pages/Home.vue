@@ -13,6 +13,6 @@ import { user } from '../../user/services/UserService';
 import { useRouter } from "vue-router"
 const router = useRouter();
 if(user != null){
-    router.replace("/me")
+    router.push("/me")
 }
 </script>
