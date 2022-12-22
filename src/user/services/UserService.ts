@@ -68,8 +68,11 @@ export async function getServers(){
 }
 export async function getServer(server_id:any){
     var server = await client.collection("servers").getOne(server_id);
-    console.log(server)
     return server;
+}
+export async function getAllServers(){
+    var servers = await client.collection("servers").getFullList(200, { sort: "-created" });
+    return servers;
 }
 export async function joinServer(server_id:any){
     try{
@@ -78,6 +81,8 @@ export async function joinServer(server_id:any){
         if(!members.includes(user?.id)){
             members.push(user?.id);
             await client.collection("servers").update(server_id, {
+                name: server.name,
+                icon: server.icon,
                 members: members
             });
         }

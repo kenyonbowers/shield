@@ -1,5 +1,5 @@
 <template>
-    <div class="font-title text-white w-full h-screen">
+    <div class="font-title text-white w-full h-screen" v-if="server && servers">
         <div v-if="server && channel" class="w-3/4 bg-zinc-700 h-16 pt-5" style="float:right; text-align:center;">
             {{ server.name }} : {{ channel.name }}
         </div>
@@ -13,12 +13,13 @@
             </div>
             <div id="msg_viewer">
                 <div v-for="msg in messages" :key="msg.id" :id="msg.id" class="flex p-2" style="jusify-content:left;">
-                    <img :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id+'/'+msg.expand.user.avatar}`" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                    <img v-if="msg.expand.user.avatar" :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id+'/'+msg.expand.user.avatar}`" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                    <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
                     <div class="ml-2">
                         <div class="text-sm">
                             {{ msg.expand.user.username }}
                         </div>
-                        <span class="text-lg ml-2 break-all">{{ msg.text }}</span>
+                        <span class="text-md ml-2 break-all">{{ msg.text }}</span>
                     </div>
                 </div>
             </div>
@@ -28,6 +29,8 @@
             <div class="w-full flex justify-center flex-row gap-2 mb-2">
                 <div v-for="srvr in servers" @click="changeServer(srvr)" :key="srvr.id" :id="srvr.id">
                     <img v-if="srvr.id == server.id" :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded"/>
+                    <img v-else-if="srvr.id == 'servers'" :src="`/plus.png`" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full"/>
+                    <img v-else-if="srvr.id == 'settings'" :src="`/gear.png`" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full"/>
                     <img v-else :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full"/>
                 </div>
             </div>
@@ -50,20 +53,28 @@ let unsubscribe: () => void;
 
 const messages = ref(<any>[]);
 const input_field = ref();
-const server = ref();
+const server = ref({ id: "", name: "", expand: { channels: [] } });
 const servers = ref(<any>[]);
 const channel = ref();
 const channels = ref(<any>[]);
 
 onMounted(async()=>{
     if(user == null){
-        router.replace("/")
+        router.push("/")
     }
     (await getServers()).items.forEach(el => {
         servers.value.push(el);
     });
-    server.value = servers.value[0];
-    changeServer(server.value);
+    if(servers.value[0] != undefined){
+        server.value = servers.value[0];
+        changeServer(server.value);
+    }
+    servers.value.push({
+        id: "servers",
+    });
+    servers.value.push({
+        id: "settings",
+    });
     unsubscribe = await client.collection('messages').subscribe("*", async({ action, record }) => {
         if(action == "create"){
             const msg_user = await client.collection("users").getOne(record.user);
@@ -92,12 +103,17 @@ onDeactivated(async()=>{
 })
 
 async function changeServer(srvr:any){
-    server.value = srvr;
-    channels.value = [];
-    server.value.expand.channels.forEach((el:any) => {
-        channels.value.push(el);
-    });
-    changeChannels(channels.value[0]);
+    if(srvr.id != "servers" && srvr.id != "settings" && srvr.id != undefined){
+        server.value = srvr;
+        channels.value = [];
+        server.value.expand.channels.forEach((el:any) => {
+            channels.value.push(el);
+        });
+        changeChannels(channels.value[0]);
+    }
+    else if(srvr.id){
+        router.push(`/${srvr.id}`)
+    }
 }
 async function changeChannels(chnl:any){
     messages.value = [];

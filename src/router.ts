@@ -10,7 +10,10 @@ import Settings from './user/pages/Settings.vue'
 import App from './app/pages/App.vue'
 
 // Invite
-import Invite from './app/pages/Invite.vue'
+import Invite from './servers/pages/Invite.vue'
+
+// Server Finder
+import Servers from './servers/pages/Servers.vue'
 
 import * as VueRouter from 'vue-router'
 
@@ -27,7 +30,10 @@ const routes = [
   { path: "/me", component: App },
   
   // Invite
-  { path: "/i/:id", component: Invite }
+  { path: "/i/:id", component: Invite },
+
+  // Server Finder
+  { path: "/servers", component: Servers }
 ]
 
 const router = VueRouter.createRouter({
@@ -50,7 +56,8 @@ const router = VueRouter.createRouter({
 })
 
 router.afterEach((to, from, fail) => {
-  console.log(fail)
+  if(fail)
+    console.log(fail)
 })
 
 export default router
