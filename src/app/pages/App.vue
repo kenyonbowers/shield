@@ -5,8 +5,11 @@
         </div>
         <div class="flex flex-row w-full">
             <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-1/6 pl-4 pt-2">
-                <div v-for="chnl in channels">
-                    <button @click="changeChannels(chnl)">{{ chnl.name }}</button>
+                <div v-for="ctgry in categories" class="mb-2">
+                    <span class="font-bold">{{ ctgry.name }}</span>
+                    <div v-for="chnl in ctgry.expand.channels">
+                        <button @click="changeChannels(chnl)"><i class="fa-solid fa-bars"></i> {{ chnl.name }}</button>
+                    </div>
                 </div>
             </div>
             <div class="bg-zinc-500 h-full w-1/4 md:w-1/6 pl-4 pt-2">
@@ -53,8 +56,10 @@ let unsubscribe: () => void;
 
 const messages = ref(<any>[]);
 const input_field = ref();
-const server = ref({ id: "", name: "", expand: { channels: [] } });
+const server = ref({ id: "", name: "", categories: [], expand: { categories: <any>[] } });
 const servers = ref(<any>[]);
+const category = ref();
+const categories = ref(<any>[]);
 const channel = ref();
 const channels = ref(<any>[]);
 
@@ -105,9 +110,13 @@ onDeactivated(async()=>{
 async function changeServer(srvr:any){
     if(srvr.id != "servers" && srvr.id != "settings" && srvr.id != undefined){
         server.value = srvr;
+        categories.value = [];
         channels.value = [];
-        server.value.expand.channels.forEach((el:any) => {
-            channels.value.push(el);
+        server.value.expand.categories.forEach(async(el:any, index:number) => {
+            categories.value.push(el);
+            server.value.expand.categories[index].expand.channels.forEach((el:any) => {
+                channels.value.push(el);
+            });
         });
         changeChannels(channels.value[0]);
     }

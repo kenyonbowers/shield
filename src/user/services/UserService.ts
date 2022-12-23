@@ -63,7 +63,7 @@ export async function sendMessage(message:any) {
 }
 
 export async function getServers(){
-    var servers = await client.collection("servers").getList(1, 20, { sort: "-created", expand: "channels", filter: `members~"${user?.id}"` });
+    var servers = await client.collection("servers").getList(1, 20, { sort: "-created", expand: "categories.channels", filter: `members~"${user?.id}"` });
     return servers;
 }
 export async function getServer(server_id:any){
