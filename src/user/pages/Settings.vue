@@ -1,7 +1,7 @@
 <template>
     <div class="font-title text-white w-full h-screen" v-if="tab_state">
-        <div class="w-3/4 md:w-5/6 bg-zinc-700 h-16 pt-5" style="float:right; text-align:center;">
-            {{ tab_state }}
+        <div class="w-3/4 md:w-5/6 bg-zinc-700 h-16 pt-4" style="float:right;">
+            <span class="text-2xl ml-4">{{ tab_state }}</span>
         </div>
         <div class="flex flex-row w-full">
             <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-1/6 px-1 pt-2">
