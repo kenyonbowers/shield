@@ -52,7 +52,7 @@
             <div class="w-full flex justify-center">
                 <input v-model="input_field" class="border-2 border-none rounded text-black w-11/12 p-4" />
                 <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none"
-                    @click="$event.preventDefault; sendMessage({ text: input_field, user: user?.id, channel: channel.id })">Send!</button>
+                    @click="$event.preventDefault; sendMessage({ text: input_field, user: user?.id, channel: channel.id }); input_field = '';">Send!</button>
             </div>
         </div>
     </div>
@@ -112,7 +112,7 @@
             <div class="w-full flex justify-center">
                 <input v-model="input_field" class="border-2 border-none rounded text-black w-11/12 p-4" />
                 <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none"
-                    @click="$event.preventDefault; sendMessage({ text: input_field, user: user?.id, channel: channel.id })">Send!</button>
+                    @click="$event.preventDefault; sendMessage({ text: input_field, user: user?.id, channel: channel.id }); input_field = '';">Send!</button>
             </div>
         </div>
     </div>
@@ -134,10 +134,9 @@ const showMobileMenuOpen = computed(() => {
 let unsubscribe: () => void;
 
 const messages = ref(<any>[]);
-const input_field = ref();
+const input_field = ref("");
 const server = ref({ id: "", name: "", categories: [], expand: { categories: <any>[] } });
 const servers = ref(<any>[]);
-const category = ref();
 const categories = ref(<any>[]);
 const channel = ref();
 const channels = ref(<any>[]);
@@ -215,8 +214,8 @@ async function changeChannels(chnl: any) {
     }, 500)
 }
 function format_text(text: string) {
-    if (text.length > 15) {
-        return text.slice(0, 12) + "...";
+    if (text.length > 25) {
+        return text.slice(0, 22) + "...";
     }
     else {
         return text;
