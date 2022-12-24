@@ -6,7 +6,7 @@
             {{ server.name }} - {{ channel.name }}
         </div>
         <div class="flex flex-row w-full">
-            <div class="bg-zinc-500 fixed top-0 left-0 h-full w-3/8 px-4 pt-2 break-all">
+            <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-4 pt-2 break-all">
                 <div v-for="ctgry in categories" class="mb-2">
                     <span class="font-bold">{{ format_text(ctgry.name) }}</span>
                     <div v-for="chnl in ctgry.expand.channels">
