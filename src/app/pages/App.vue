@@ -1,9 +1,11 @@
 <template>
     <!-- PC & Tablet -->
     <div class="font-title text-white w-full h-screen" v-if="server && servers && breakpoint != 'sm'">
-        <div v-if="server && channel" class="w-3/4 md:w-5/8 bg-zinc-700 h-16 pt-5"
+        <div v-if="server && channel" class="w-3/4 md:w-5/8 bg-zinc-700 fixed top-0 right-0 h-16 pt-5"
             style="float:right; text-align:center;">
             {{ server.name }} - {{ channel.name }}
+        </div>
+        <div class="w-3/4 md:w-5/8 h-16">
         </div>
         <div class="flex flex-row w-full">
             <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-4 pt-2 break-all">
@@ -15,7 +17,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-zinc-500 h-full w-3/8 pl-4 pt-2">
+            <div class="bg-zinc-500 h-full w-1/4 md:w-3/8 pl-4 pt-2">
             </div>
             <div id="msg_viewer">
                 <div v-for="msg in messages" :key="msg.id" :id="msg.id" class="flex p-2" style="jusify-content:left;">
@@ -56,12 +58,12 @@
     </div>
     <!-- Mobile -->
     <div class="font-title text-white w-full h-screen" v-else-if="server && servers">
-        <div v-if="server && channel" class="bg-zinc-700 h-16 pt-5" style="text-align:center;">
-            <button @click="mobileMenuOpen = true" class="fixed left-6"><i class="fa-solid fa-bars w-5"></i></button>
+        <div v-if="server && channel" class="bg-zinc-700 h-16 w-full pt-5 fixed top-0 left-0" style="text-align:center;">
+            <button @click="mobileMenuOpen = true" class="fixed left-6"><i class="fa-solid fa-bars fa-xl"></i></button>
             <Transition>
                 <div class="top-nav-menu__mobile-menu-panel transition-all bg-zinc-500 z-50 text-white px-4 py-2"
                     v-if="showMobileMenuOpen">
-                    <button @click="mobileMenuOpen = false" class="fixed top-5 left-6"><i class="fa-solid fa-close w-5"></i></button>
+                    <button @click="mobileMenuOpen = false" class="fixed top-4 left-6"><i class="fa-solid fa-close fa-2xl"></i></button>
                     <div class="bg-zinc-500 h-full w-full px-4 pt-10 break-all" style="text-align:start;">
                         <div v-for="ctgry in categories" class="mb-2">
                             <span class="font-bold">{{ ctgry.name }}</span>
@@ -73,6 +75,8 @@
                 </div>
             </Transition>
             {{ server.name }} - {{ channel.name }}
+        </div>
+        <div class="h-16 w-full">
         </div>
         <div class="flex flex-row w-full">
             <div id="msg_viewer">
