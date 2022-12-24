@@ -131,6 +131,9 @@ async function changeChannels(chnl:any){
        messages.value.push(el); 
     });
     messages.value.reverse();
+    setTimeout(function(){
+        document.getElementById("scroll")?.scrollIntoView({behavior: "smooth", block: "start", inline: "center"});
+    }, 500)
 }
 </script>
 <style setup lang="css">
