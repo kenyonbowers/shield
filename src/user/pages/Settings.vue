@@ -5,7 +5,7 @@
         </div>
         <div class="flex flex-row w-full">
             <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-2 pt-2">
-                <RouterLink to="/me"><i class="fa-solid fa-close fa-2xl"></i></RouterLink>
+                <RouterLink :to="Config.appUrl"><i class="fa-solid fa-close fa-2xl"></i></RouterLink>
                 <div v-for="tab in tab_states" @click="tab_state = tab" class="w-full bg-zinc-600 p-2 rounded hover:drop-shadow-xl hover:bg-zinc-700 transition-all mb-1" style="text-align:center;">
                     {{ tab }}
                 </div>
@@ -27,6 +27,7 @@
 import { user, logout } from '../services/UserService';
 import { useRouter } from "vue-router";
 import { ref, onMounted } from 'vue';
+import Config from '../../config/services/ConfigService';
 const badges = ref(<any>[]);
 const tab_state = ref();
 const router = useRouter();

@@ -8,10 +8,11 @@
 import { user, login } from '../services/UserService';
 import { useRouter } from "vue-router";
 import { ref, onMounted } from 'vue';
+import Config from '../../config/services/ConfigService';
 const router = useRouter();
 onMounted(async()=>{
     if(user != null){
-        router.push("/me")
+        router.push(Config.appUrl)
     }
 })
 const email_model = ref("");

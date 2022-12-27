@@ -9,7 +9,7 @@
                     <span class="text-3xl">{{ server_name }}</span>
                 </div>
                 <div class="flex flex-row gap-2 w-full flex justify-center">
-                    <RouterLink to="/me"><button class="bg-zinc-500 hover:bg-zinc-400 transition-all pl-4 pr-4 pt-2 pb-2 rounded text-lg">Cancel!</button></RouterLink>
+                    <RouterLink :to="Config.appUrl"><button class="bg-zinc-500 hover:bg-zinc-400 transition-all pl-4 pr-4 pt-2 pb-2 rounded text-lg">Cancel!</button></RouterLink>
                     <button @click="click()" class="bg-blue-500 hover:bg-blue-400 transition-all pl-4 pr-4 pt-2 pb-2 rounded text-lg">Join!</button>
                 </div>
             </div>
@@ -42,7 +42,7 @@ onMounted(async()=>{
 async function click(){
     var status_code:any = await joinServer(server_id.value);
     if(status_code == true){
-        router.push("/me");
+        router.push(Config.appUrl);
     }
 }
 </script>

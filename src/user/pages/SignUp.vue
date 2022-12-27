@@ -10,6 +10,7 @@
 import { user, signup } from '../services/UserService';
 import { useRouter } from "vue-router";
 import { ref, onMounted } from 'vue';
+import Config from '../../config/services/ConfigService';
 const username_model = ref("");
 const password_model = ref("");
 const password_confirm_model = ref("");
@@ -18,7 +19,7 @@ const router = useRouter();
 onMounted(async()=>{
     console.log(user)
     if(user != null){
-        router.push("/me")
+        router.push(Config.appUrl)
     }
 })
 function reloadPage() {

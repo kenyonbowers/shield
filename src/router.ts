@@ -27,7 +27,7 @@ const routes = [
   { path: "/settings", component: Settings },
 
   // Channels
-  { path: "/me", component: App },
+  { path: "/app", component: App },
   
   // Invite
   { path: "/i/:id", component: Invite },
