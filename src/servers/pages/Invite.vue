@@ -33,6 +33,7 @@ onMounted(async()=>{
     }
     let { id } = route.params
     server_id.value = id;
+    localStorage.setItem("last_server", server_id.value);
     var server = await getServer(server_id.value);
     server_icon.value = Config.pocketBaseApiUrl + "api/files/servers/" + server_id.value + "/" + server.icon;
     server_name.value = server.name;

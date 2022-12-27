@@ -4,9 +4,9 @@
             <span class="text-2xl ml-4">{{ tab_state }}</span>
         </div>
         <div class="flex flex-row w-full">
-            <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-1 pt-2">
-                <RouterLink to="/me">X</RouterLink>
-                <div v-for="tab in tab_states" @click="tab_state = tab" class="w-full bg-zinc-600 p-2 rounded hover:drop-shadow-xl hover:bg-zinc-700 transition-all mb-1">
+            <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-2 pt-2">
+                <RouterLink to="/me"><i class="fa-solid fa-close fa-2xl"></i></RouterLink>
+                <div v-for="tab in tab_states" @click="tab_state = tab" class="w-full bg-zinc-600 p-2 rounded hover:drop-shadow-xl hover:bg-zinc-700 transition-all mb-1" style="text-align:center;">
                     {{ tab }}
                 </div>
             </div>
@@ -23,32 +23,6 @@
         </div>
     </div>
 </template>
-
-<!--<template>
-    <div v-if="tab_state" class="font-title text-white w-full h-screen">
-        <div class="flex flex-row">
-            <div class="h-screen fixed top-0 left-0 w-1/4 md:w-1/6 bg-zinc-500 p-2 flex flex-col gap-1">
-                <RouterLink to="/me">X</RouterLink>
-                <div v-for="tab in tab_states" @click="tab_state = tab" class="w-full bg-zinc-600 p-2 rounded hover:drop-shadow-xl hover:bg-zinc-700 transition-all">
-                    {{ tab }}
-                </div>
-            </div>
-            <div class="h-screen w-1/4 md:w-1/6">
-            </div>
-            <div class="w-full">
-                <div class="mb-2 w-full bg-zinc-700 p-2">
-                    <span class="text-2xl">{{ tab_state }}</span>
-                </div>
-                <div v-if="tab_state == tab_states.account" class="p-2">
-                    <button @click="logout().then(()=>{reloadPage()}).catch(()=>{reloadPage()})" class="bg-red-500 p-2 hover:bg-red-400 rounded transition-all">Logout</button>
-                </div>
-                <div v-else-if="tab_state == tab_states.profile">
-            
-                </div>
-            </div>
-        </div>
-    </div>
-</template>-->
 <script setup lang="ts">
 import { user, logout } from '../services/UserService';
 import { useRouter } from "vue-router";

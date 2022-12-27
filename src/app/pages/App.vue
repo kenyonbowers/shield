@@ -1,14 +1,32 @@
 <template>
     <!-- PC & Tablet -->
-    <div class="font-title text-white w-full h-screen" v-if="server && servers && breakpoint != 'sm'">
+    <div class="font-title text-white w-full h-screen" v-if="server && servers">
         <div v-if="server && channel" class="w-3/4 md:w-5/8 bg-zinc-700 fixed top-0 right-0 h-16 pt-5"
             style="float:right; text-align:center;">
-            {{ server.name }} - {{ channel.name }}
+            <div v-if="server && channel && breakpoint == 'sm'" class="bg-zinc-700 h-16 w-full pt-5 fixed top-0 left-0 z-50" style="text-align:center;">
+                <button @click="mobileMenuOpen = true" class="fixed left-6"><i class="fa-solid fa-bars fa-xl"></i></button>
+                <Transition>
+                    <div class="top-nav-menu__mobile-menu-panel transition-all bg-zinc-500 z-50 text-white px-4 py-2"
+                        v-if="showMobileMenuOpen">
+                        <button @click="mobileMenuOpen = false" class="fixed top-4 left-6"><i class="fa-solid fa-close fa-2xl"></i></button>
+                        <div class="bg-zinc-500 h-full w-full px-2 pt-12 break-all" style="text-align:start;">
+                            <div v-for="ctgry in categories" class="mb-2">
+                                <span class="font-bold">{{ ctgry.name }}</span>
+                                <div v-for="chnl in ctgry.expand.channels">
+                                    <button @click="changeChannels(chnl); mobileMenuOpen = false;"><i class="fa-solid fa-bars"></i> {{ chnl.name }}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Transition>
+                <span>{{ server.name }} - {{ channel.name }}</span>
+            </div>
+            <span v-else>{{ server.name }} - {{ channel.name }}</span>
         </div>
         <div class="w-3/4 md:w-5/8 h-16">
         </div>
         <div class="flex flex-row w-full">
-            <div class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-4 pt-2 break-all">
+            <div v-if="breakpoint != 'sm'" class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-4 pt-2 break-all">
                 <div v-for="ctgry in categories" class="mb-2">
                     <span class="font-bold">{{ format_text(ctgry.name) }}</span>
                     <div v-for="chnl in ctgry.expand.channels">
@@ -17,7 +35,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-zinc-500 h-full w-1/4 md:w-3/8 pl-4 pt-2">
+            <div v-if="breakpoint != 'sm'" class="bg-zinc-500 h-full w-1/4 md:w-3/8 pl-4 pt-2">
             </div>
             <div id="msg_viewer">
                 <div v-for="msg in messages" :key="msg.id" :id="msg.id" class="flex p-2" style="jusify-content:left;">
@@ -58,13 +76,13 @@
     </div>
     <!-- Mobile -->
     <div class="font-title text-white w-full h-screen" v-else-if="server && servers">
-        <div v-if="server && channel" class="bg-zinc-700 h-16 w-full pt-5 fixed top-0 left-0" style="text-align:center;">
+        <div v-if="server && channel" class="bg-zinc-700 h-16 w-full pt-5 fixed top-0 left-0 z-50" style="text-align:center;">
             <button @click="mobileMenuOpen = true" class="fixed left-6"><i class="fa-solid fa-bars fa-xl"></i></button>
             <Transition>
                 <div class="top-nav-menu__mobile-menu-panel transition-all bg-zinc-500 z-50 text-white px-4 py-2"
                     v-if="showMobileMenuOpen">
                     <button @click="mobileMenuOpen = false" class="fixed top-4 left-6"><i class="fa-solid fa-close fa-2xl"></i></button>
-                    <div class="bg-zinc-500 h-full w-full px-4 pt-10 break-all" style="text-align:start;">
+                    <div class="bg-zinc-500 h-full w-full px-2 pt-12 break-all" style="text-align:start;">
                         <div v-for="ctgry in categories" class="mb-2">
                             <span class="font-bold">{{ ctgry.name }}</span>
                             <div v-for="chnl in ctgry.expand.channels">
@@ -78,7 +96,7 @@
         </div>
         <div class="h-16 w-full">
         </div>
-        <div class="flex flex-row w-full">
+        <div class="flex flex-row w-full z-40">
             <div id="msg_viewer">
                 <div v-for="msg in messages" :key="msg.id" :id="msg.id" class="flex p-2" style="jusify-content:left;">
                     <img v-if="msg.expand.user.avatar"
@@ -149,7 +167,17 @@ onMounted(async () => {
         servers.value.push(el);
     });
     if (servers.value[0] != undefined) {
-        server.value = servers.value[0];
+        if(localStorage.getItem("last_server")){
+            server.value = servers.value[servers.value.findIndex(function (el:any){
+                return el.id === localStorage.getItem("last_server")
+            })];
+            if(server.value == undefined){
+                server.value = servers.value[0];
+            }
+        }
+        else{
+            server.value = servers.value[0];
+        }
         changeServer(server.value);
     }
     servers.value.push({
@@ -187,6 +215,7 @@ onDeactivated(async () => {
 
 async function changeServer(srvr: any) {
     if (srvr.id != "servers" && srvr.id != "settings" && srvr.id != undefined) {
+        localStorage.setItem("last_server", srvr.id);
         server.value = srvr;
         categories.value = [];
         channels.value = [];
@@ -196,13 +225,21 @@ async function changeServer(srvr: any) {
                 channels.value.push(el);
             });
         });
-        changeChannels(channels.value[0]);
+        if(localStorage.getItem(`last_channel_${srvr.id}`) != undefined){ 
+            changeChannels(channels.value[channels.value.findIndex(function (el:any){
+                return el.id === localStorage.getItem(`last_channel_${srvr.id}`)
+            })]);
+        }
+        else{
+            changeChannels(channels.value[0]);
+        }
     }
     else if (srvr.id) {
         router.push(`/${srvr.id}`)
     }
 }
 async function changeChannels(chnl: any) {
+    localStorage.setItem(`last_channel_${chnl.server}`, chnl.id);
     messages.value = [];
     channel.value = chnl;
     (await getMessages(1, 20, channel.value.id)).items.forEach(el => {
