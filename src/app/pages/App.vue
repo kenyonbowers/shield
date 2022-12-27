@@ -1,31 +1,27 @@
 <template>
-    <!-- PC & Tablet -->
     <div class="font-title text-white w-full h-screen" v-if="server && servers">
-        <div v-if="server && channel" class="w-3/4 md:w-5/8 bg-zinc-700 fixed top-0 right-0 h-16 pt-5"
+        <div v-if="server && channel" class="w-full md:w-3/4 md:w-5/8 bg-zinc-700 fixed top-0 right-0 h-16 pt-5 z-50"
             style="float:right; text-align:center;">
-            <div v-if="server && channel && breakpoint == 'sm'" class="bg-zinc-700 h-16 w-full pt-5 fixed top-0 left-0 z-50" style="text-align:center;">
-                <button @click="mobileMenuOpen = true" class="fixed left-6"><i class="fa-solid fa-bars fa-xl"></i></button>
-                <Transition>
-                    <div class="top-nav-menu__mobile-menu-panel transition-all bg-zinc-500 z-50 text-white px-4 py-2"
-                        v-if="showMobileMenuOpen">
-                        <button @click="mobileMenuOpen = false" class="fixed top-4 left-6"><i class="fa-solid fa-close fa-2xl"></i></button>
-                        <div class="bg-zinc-500 h-full w-full px-2 pt-12 break-all" style="text-align:start;">
-                            <div v-for="ctgry in categories" class="mb-2">
-                                <span class="font-bold">{{ ctgry.name }}</span>
-                                <div v-for="chnl in ctgry.expand.channels">
-                                    <button @click="changeChannels(chnl); mobileMenuOpen = false;"><i class="fa-solid fa-bars"></i> {{ chnl.name }}</button>
-                                </div>
+            <button @click="mobileMenuOpen = true" class="fixed left-6"><i class="fa-solid fa-bars fa-xl"></i></button>
+            <Transition v-if="breakpoint == 'sm'">
+                <div class="top-nav-menu__mobile-menu-panel transition-all bg-zinc-500 z-50 text-white px-4 py-2 z-50"
+                    v-if="showMobileMenuOpen && breakpoint == 'sm'">
+                    <button @click="mobileMenuOpen = false" class="fixed top-4 left-6"><i class="fa-solid fa-close fa-2xl"></i></button>
+                    <div class="bg-zinc-500 h-full w-full px-2 pt-12 break-all z-50" style="text-align:start;">
+                        <div v-for="ctgry in categories" class="mb-2 z-50">
+                            <span class="font-bold">{{ ctgry.name }}</span>
+                            <div v-for="chnl in ctgry.expand.channels">
+                                <button @click="changeChannels(chnl); mobileMenuOpen = false;"><i class="fa-solid fa-bars"></i> {{ chnl.name }}</button>
                             </div>
                         </div>
                     </div>
-                </Transition>
-                <span>{{ server.name }} - {{ channel.name }}</span>
-            </div>
-            <span v-else>{{ server.name }} - {{ channel.name }}</span>
+                </div>
+            </Transition>
+            <span>{{ server.name }} - {{ channel.name }}</span>
         </div>
-        <div class="w-3/4 md:w-5/8 h-16">
+        <div class="w-full md:w-3/4 md:w-5/8 h-16">
         </div>
-        <div class="flex flex-row w-full">
+        <div class="flex flex-row w-full z-20">
             <div v-if="breakpoint != 'sm'" class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-4 pt-2 break-all">
                 <div v-for="ctgry in categories" class="mb-2">
                     <span class="font-bold">{{ format_text(ctgry.name) }}</span>
@@ -40,7 +36,7 @@
             <div id="msg_viewer">
                 <div v-for="msg in messages" :key="msg.id" :id="msg.id" class="flex p-2" style="jusify-content:left;">
                     <img v-if="msg.expand.user.avatar"
-                        :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id + '/' + msg.expand.user.avatar}`"
+                        :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id+'/'+msg.expand.user.avatar}`"
                         class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
                     <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
                     <div class="ml-2">
@@ -52,73 +48,13 @@
                 </div>
             </div>
         </div>
-        <div id="scroll" class="h-32 md:h-48 w-3/5" style="float:right;"></div>
-        <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col h-32 md:h-48">
+        <div id="scroll" class="h-32 md:h-48 w-full md:w-3/5" style="float:right;"></div>
+        <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col h-32 md:h-48 z-40">
             <div class="w-full flex justify-center flex-row gap-2 mb-2">
                 <div v-for="srvr in servers" @click="changeServer(srvr)" :key="srvr.id" :id="srvr.id">
                     <img v-if="srvr.id == server.id"
                         :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded" />
-                    <img v-else-if="srvr.id == 'servers'" :src="`/plus.png`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                    <img v-else-if="srvr.id == 'settings'" :src="`/gear.png`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                    <img v-else :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                </div>
-            </div>
-            <div class="w-full flex justify-center">
-                <input v-model="input_field" class="border-2 border-none rounded text-black w-11/12 p-4" />
-                <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none"
-                    @click="$event.preventDefault; sendMessage({ text: input_field, user: user?.id, channel: channel.id }); input_field = '';">Send!</button>
-            </div>
-        </div>
-    </div>
-    <!-- Mobile -->
-    <div class="font-title text-white w-full h-screen" v-else-if="server && servers">
-        <div v-if="server && channel" class="bg-zinc-700 h-16 w-full pt-5 fixed top-0 left-0 z-50" style="text-align:center;">
-            <button @click="mobileMenuOpen = true" class="fixed left-6"><i class="fa-solid fa-bars fa-xl"></i></button>
-            <Transition>
-                <div class="top-nav-menu__mobile-menu-panel transition-all bg-zinc-500 z-50 text-white px-4 py-2"
-                    v-if="showMobileMenuOpen">
-                    <button @click="mobileMenuOpen = false" class="fixed top-4 left-6"><i class="fa-solid fa-close fa-2xl"></i></button>
-                    <div class="bg-zinc-500 h-full w-full px-2 pt-12 break-all" style="text-align:start;">
-                        <div v-for="ctgry in categories" class="mb-2">
-                            <span class="font-bold">{{ ctgry.name }}</span>
-                            <div v-for="chnl in ctgry.expand.channels">
-                                <button @click="changeChannels(chnl); mobileMenuOpen = false;"><i class="fa-solid fa-bars"></i> {{ chnl.name }}</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </Transition>
-            {{ server.name }} - {{ channel.name }}
-        </div>
-        <div class="h-16 w-full">
-        </div>
-        <div class="flex flex-row w-full z-40">
-            <div id="msg_viewer">
-                <div v-for="msg in messages" :key="msg.id" :id="msg.id" class="flex p-2" style="jusify-content:left;">
-                    <img v-if="msg.expand.user.avatar"
-                        :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id + '/' + msg.expand.user.avatar}`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                    <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                    <div class="ml-2">
-                        <div class="text-sm">
-                            {{ msg.expand.user.username }}
-                        </div>
-                        <span class="text-md ml-2 break-all">{{ msg.text }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="scroll" class="h-32 md:h-48 w-3/5" style="float:right;"></div>
-        <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col h-32 md:h-48">
-            <div class="w-full flex justify-center flex-row gap-2 mb-2">
-                <div v-for="srvr in servers" @click="changeServer(srvr)" :key="srvr.id" :id="srvr.id">
-                    <img v-if="srvr.id == server.id"
-                        :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded" />
+                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-lg" />
                     <img v-else-if="srvr.id == 'servers'" :src="`/plus.png`"
                         class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
                     <img v-else-if="srvr.id == 'settings'" :src="`/gear.png`"
