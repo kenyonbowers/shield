@@ -4,11 +4,11 @@
             style="float:right; text-align:center;">
             <button @click="mobileMenuOpen = true" class="fixed left-6"><i class="fa-solid fa-bars fa-xl"></i></button>
             <Transition v-if="breakpoint == 'sm'">
-                <div class="top-nav-menu__mobile-menu-panel transition-all bg-zinc-500 z-50 text-white px-4 py-2 z-50"
+                <div class="top-nav-menu__mobile-menu-panel transition-all bg-zinc-500 text-white px-4 py-2"
                     v-if="showMobileMenuOpen && breakpoint == 'sm'">
                     <button @click="mobileMenuOpen = false" class="fixed top-4 left-6"><i class="fa-solid fa-close fa-2xl"></i></button>
-                    <div class="bg-zinc-500 h-full w-full px-2 pt-12 break-all z-50" style="text-align:start;">
-                        <div v-for="ctgry in categories" class="mb-2 z-50">
+                    <div class="bg-zinc-500 h-full w-full px-2 pt-12 break-all" style="text-align:start;">
+                        <div v-for="ctgry in categories" class="mb-2">
                             <span class="font-bold">{{ ctgry.name }}</span>
                             <div v-for="chnl in ctgry.expand.channels">
                                 <button @click="changeChannels(chnl); mobileMenuOpen = false;"><i class="fa-solid fa-bars"></i> {{ chnl.name }}</button>
