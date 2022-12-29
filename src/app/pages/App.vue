@@ -2,16 +2,16 @@
     <div class="font-title text-white w-full h-screen" v-if="server && servers">
         <div v-if="server && channel" class="w-full md:w-3/4 md:w-5/8 bg-zinc-700 fixed top-0 right-0 h-16 pt-5 z-50"
             style="float:right; text-align:center;">
-            <button @click="mobileMenuOpen = true" class="fixed left-6"><i class="fa-solid fa-bars fa-xl"></i></button>
+            <button v-if="breakpoint == 'sm'" @click="mobile_menu_open = true" class="fixed left-6"><i class="fa-solid fa-bars fa-xl"></i></button>
             <Transition v-if="breakpoint == 'sm'">
                 <div class="top-nav-menu__mobile-menu-panel transition-all bg-zinc-500 text-white px-4 py-2"
-                    v-if="showMobileMenuOpen && breakpoint == 'sm'">
-                    <button @click="mobileMenuOpen = false" class="fixed top-4 left-6"><i class="fa-solid fa-close fa-2xl"></i></button>
+                    v-if="show_mobile_menu_open && breakpoint == 'sm'">
+                    <button @click="mobile_menu_open = false" class="fixed top-4 left-6"><i class="fa-solid fa-close fa-2xl"></i></button>
                     <div class="bg-zinc-500 h-full w-full px-2 pt-12 break-all" style="text-align:start;">
                         <div v-for="ctgry in categories" class="mb-2">
                             <span class="font-bold">{{ ctgry.name }}</span>
                             <div v-for="chnl in ctgry.expand.channels">
-                                <button @click="changeChannels(chnl); mobileMenuOpen = false;"><i class="fa-solid fa-bars"></i> {{ chnl.name }}</button>
+                                <button @click="change_channels(chnl); mobile_menu_open = false;"><i class="fa-solid fa-bars"></i> {{ chnl.name }}</button>
                             </div>
                         </div>
                     </div>
@@ -26,15 +26,15 @@
                 <div v-for="ctgry in categories" class="mb-2">
                     <span class="font-bold">{{ format_text(ctgry.name) }}</span>
                     <div v-for="chnl in ctgry.expand.channels">
-                        <button @click="changeChannels(chnl)"><i class="fa-solid fa-bars"></i> {{ format_text(chnl.name)
+                        <button @click="change_channels(chnl)"><i class="fa-solid fa-bars"></i> {{ format_text(chnl.name)
                         }}</button>
                     </div>
                 </div>
             </div>
             <div v-if="breakpoint != 'sm'" class="bg-zinc-500 h-full w-1/4 md:w-3/8 pl-4 pt-2">
             </div>
-            <div id="msg_viewer">
-                <div v-for="msg in messages" :key="msg.id" :id="msg.id" class="flex p-2" style="jusify-content:left;">
+            <div id="msg_viewer" class="w-full md:w-3/4 md:w-5/8">
+                <div v-for="msg in messages" :key="msg.id" :id="msg.id" class="flex p-2 hover:bg-zinc-500 transition-all w-full" @click="open_popup(msg)" style="jusify-content:left;">
                     <img v-if="msg.expand.user.avatar"
                         :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id+'/'+msg.expand.user.avatar}`"
                         class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
@@ -51,7 +51,7 @@
         <div id="scroll" class="h-32 md:h-48 w-full md:w-3/5" style="float:right;"></div>
         <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col h-32 md:h-48 z-40">
             <div class="w-full flex justify-center flex-row gap-2 mb-2">
-                <div v-for="srvr in servers" @click="changeServer(srvr)" :key="srvr.id" :id="srvr.id">
+                <div v-for="srvr in servers" @click="change_server(srvr)" :key="srvr.id" :id="srvr.id">
                     <img v-if="srvr.id == server.id"
                         :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`"
                         class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-lg" />
@@ -68,6 +68,25 @@
                 <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none"
                     @click="$event.preventDefault; sendMessage({ text: input_field, user: user?.id, channel: channel.id }); input_field = '';">Send!</button>
             </div>
+            <AppModal v-model="show_msg_modal" v-slot="{ close }">
+                <div class="flex p-2 transition-all w-full" style="jusify-content:left;">
+                    <img v-if="modal_msg.expand.user.avatar"
+                        :src="`https://shield.pockethost.io/api/files/users/${modal_msg.expand.user.id+'/'+modal_msg.expand.user.avatar}`"
+                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                    <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                    <div class="ml-2">
+                        <div class="text-sm">
+                            {{ modal_msg.expand.user.username }}
+                        </div>
+                        <span class="text-md ml-2 break-all">{{ modal_msg.text }}</span>
+                    </div>
+                </div>
+                <div class="mt-2 flex flex-col gap-2 md:w-1/6">
+                    <button v-if="user?.is_admin" class="bg-red-500 p-2 rounded">Delete <i class="fa-solid fa-trash"></i></button>
+                    <button v-if="user?.id == modal_msg.expand.user.id" class="bg-green-500 p-2 rounded">Edit <i class="fa-solid fa-pen"></i></button>
+                    <button class="bg-cyan-500 p-2 rounded">Copy Text <i class="fa-solid fa-copy"></i></button>
+                </div>
+            </AppModal>
         </div>
     </div>
 </template>
@@ -76,13 +95,14 @@ import { user, getMessages, sendMessage, getServers } from '../../user/services/
 import { useRouter } from "vue-router";
 import { onMounted, onDeactivated, ref, computed } from 'vue';
 import { useBreakpoint } from '../../browser/ViewportService'
+import AppModal from '../../components/AppModal.vue'
 import client from '../../api/PocketBaseClient';
 const router = useRouter();
 const { breakpoint } = useBreakpoint();
 
-const mobileMenuOpen = ref(false)
-const showMobileMenuOpen = computed(() => {
-    return mobileMenuOpen.value && breakpoint.value === 'sm'
+const mobile_menu_open = ref(false)
+const show_mobile_menu_open = computed(() => {
+    return mobile_menu_open.value && breakpoint.value === 'sm'
 })
 
 let unsubscribe: () => void;
@@ -94,6 +114,9 @@ const servers = ref(<any>[]);
 const categories = ref(<any>[]);
 const channel = ref();
 const channels = ref(<any>[]);
+
+const show_msg_modal = ref(false);
+const modal_msg = ref({ id: "", expand: { user: { id: "", avatar: "", username: "" } }, text: "" });
 
 onMounted(async () => {
     if (user == null) {
@@ -114,7 +137,7 @@ onMounted(async () => {
         else{
             server.value = servers.value[0];
         }
-        changeServer(server.value);
+        change_server(server.value);
     }
     servers.value.push({
         id: "servers",
@@ -149,7 +172,7 @@ onDeactivated(async () => {
     unsubscribe();
 })
 
-async function changeServer(srvr: any) {
+async function change_server(srvr: any) {
     if (srvr.id != "servers" && srvr.id != "settings" && srvr.id != undefined) {
         localStorage.setItem("last_server", srvr.id);
         server.value = srvr;
@@ -162,19 +185,19 @@ async function changeServer(srvr: any) {
             });
         });
         if(localStorage.getItem(`last_channel_${srvr.id}`) != undefined){ 
-            changeChannels(channels.value[channels.value.findIndex(function (el:any){
+            change_channels(channels.value[channels.value.findIndex(function (el:any){
                 return el.id === localStorage.getItem(`last_channel_${srvr.id}`)
             })]);
         }
         else{
-            changeChannels(channels.value[0]);
+            change_channels(channels.value[0]);
         }
     }
     else if (srvr.id) {
         router.push(`/${srvr.id}`)
     }
 }
-async function changeChannels(chnl: any) {
+async function change_channels(chnl: any) {
     localStorage.setItem(`last_channel_${chnl.server}`, chnl.id);
     messages.value = [];
     channel.value = chnl;
@@ -193,6 +216,10 @@ function format_text(text: string) {
     else {
         return text;
     }
+}
+function open_popup(msg:any){
+    modal_msg.value = msg;
+    show_msg_modal.value = true;
 }
 </script>
 <style setup lang="css">

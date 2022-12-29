@@ -2,7 +2,7 @@ const pocketBaseApiUrl = import.meta.env.VITE_POCKETBASE_URL
 
 const Config = {
   pocketBaseApiUrl,
-  appUrl: "/app"
+  appUrl: "/app",
 }
 
 export default Config
