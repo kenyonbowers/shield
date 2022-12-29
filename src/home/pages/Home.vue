@@ -11,8 +11,9 @@
 <script setup lang="ts">
 import { user } from '../../user/services/UserService';
 import { useRouter } from "vue-router"
+import Config from '../../config/services/ConfigService';
 const router = useRouter();
 if(user != null){
-    router.push("/me")
+    router.replace(Config.appUrl)
 }
 </script>
