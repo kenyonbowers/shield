@@ -61,6 +61,22 @@ export async function sendMessage(message:any) {
         console.log("Failed to send message.")
     }
 }
+export async function deleteMessage(message:any){
+    if(user?.id == message.expand.user.id || user?.is_admin){
+        await client.collection("messages").delete(message.id);
+    }
+    else{
+        console.log("Not an admin or not the correct user.");
+    }
+}
+export async function editMessage(message_id:any, body:any){
+    if(user?.id == body.user){
+        await client.collection("messages").update(message_id, body);
+    }
+    else{
+        console.log("Cannot edit message because the user is not the user who sent the message.")
+    }
+}
 
 export async function getServers(){
     var servers = await client.collection("servers").getList(1, 20, { sort: "-created", expand: "categories.channels", filter: `members~"${user?.id}"` });
