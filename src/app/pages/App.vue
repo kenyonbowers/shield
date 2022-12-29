@@ -43,12 +43,13 @@
                     class="flex p-2 hover:bg-zinc-500 transition-all w-full" @click="open_popup(msg)"
                     style="jusify-content:left;">
                     <img v-if="msg.expand.user.avatar"
-                        :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id + '/' + msg.expand.user.avatar}`"
+                        :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id+'/'+msg.expand.user.avatar}`"
                         class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
                     <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
                     <div class="ml-2">
                         <div class="text-sm">
                             {{ msg.expand.user.username }}
+                            <span v-if="msg.edited">(Edited)</span>
                         </div>
                         <span class="text-md ml-2 break-all">{{ msg.text }}</span>
                     </div>
@@ -56,8 +57,8 @@
             </div>
         </div>
         <div id="scroll" class="h-32 md:h-48 w-full md:w-3/5" style="float:right;"></div>
-        <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col z-30">
-            <div v-if="editing_msg" class="border-b-2 border-zinc-500 px-2 mb-2 flex flex-row">
+        <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col">
+            <div v-if="editing_msg" class="border-b-2 border-zinc-500 px-2 mb-2 flex flex-row" style="z-index: 10;">
                 <div class="w-1/2">
                     Editing Message
                 </div>
@@ -83,35 +84,36 @@
                 <div class="w-full flex justify-center">
                     <input v-model="input_field" class="border-2 border-none rounded text-black w-11/12 p-4" />
                     <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none"
-                        @click="$event.preventDefault; send_button({ text: input_field, user: user?.id, channel: channel.id }); input_field = '';">Send!</button>
+                        @click="$event.preventDefault; send_button({ text: input_field, user: user?.id, channel: channel.id, edited: editing_msg }); input_field = '';">Send!</button>
                 </div>
-                <AppModal v-model="show_msg_modal" v-slot="{ close }" class="z-50">
-                    <div class="flex p-2 transition-all w-full" style="jusify-content:left;">
-                        <img v-if="modal_msg.expand.user.avatar"
-                            :src="`https://shield.pockethost.io/api/files/users/${modal_msg.expand.user.id + '/' + modal_msg.expand.user.avatar}`"
-                            class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                        <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                        <div class="ml-2">
-                            <div class="text-sm">
-                                {{ modal_msg.expand.user.username }}
-                            </div>
-                            <span class="text-md ml-2 break-all">{{ modal_msg.text }}</span>
-                        </div>
-                    </div>
-                    <div class="mt-2 flex flex-col gap-2 md:w-1/6 justify-center">
-                        <button v-if="user?.is_admin"
-                            class="bg-red-500 hover:bg-red-400 active:bg-red-600 transition-all p-2 rounded"
-                            @click="deleteMessage(modal_msg); show_msg_modal = false;">Delete <i
-                                class="fa-solid fa-trash"></i></button>
-                        <button v-if="user?.id == modal_msg.expand.user.id"
-                            class="bg-green-500 hover:bg-green-400 active:bg-green-600 transition-all p-2 rounded"
-                            @click="edit_message(modal_msg)">Edit <i class="fa-solid fa-pen"></i></button>
-                        <button class="bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 transition-all p-2 rounded"
-                            @click="copy_string(modal_msg.text)">Copy Text <i class="fa-solid fa-copy"></i></button>
-                    </div>
-                </AppModal>
             </div>
         </div>
+        <AppModal v-model="show_msg_modal" v-slot="{ close }" class="z-50">
+            <div class="flex p-2 transition-all w-full" style="jusify-content:left;">
+                <img v-if="modal_msg.expand.user.avatar"
+                    :src="`https://shield.pockethost.io/api/files/users/${modal_msg.expand.user.id+'/'+modal_msg.expand.user.avatar}`"
+                    class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                <div class="ml-2">
+                    <div class="text-sm">
+                        {{ modal_msg.expand.user.username }}
+                        <span v-if="modal_msg.edited">(Edited)</span>
+                    </div>
+                    <span class="text-md ml-2 break-all">{{ modal_msg.text }}</span>
+                </div>
+            </div>
+            <div class="mt-2 flex flex-col gap-2 md:w-1/6 justify-center">
+                <button v-if="user?.is_admin"
+                    class="bg-red-500 hover:bg-red-400 active:bg-red-600 transition-all p-2 rounded"
+                    @click="deleteMessage(modal_msg); show_msg_modal = false;">Delete <i
+                        class="fa-solid fa-trash"></i></button>
+                <button v-if="user?.id == modal_msg.expand.user.id"
+                    class="bg-green-500 hover:bg-green-400 active:bg-green-600 transition-all p-2 rounded"
+                    @click="edit_message(modal_msg)">Edit <i class="fa-solid fa-pen"></i></button>
+                <button class="bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 transition-all p-2 rounded"
+                    @click="copy_string(modal_msg.text)">Copy Text <i class="fa-solid fa-copy"></i></button>
+            </div>
+        </AppModal>
     </div>
 </template>
 <script setup lang="ts">
@@ -140,7 +142,7 @@ const channel = ref();
 const channels = ref(<any>[]);
 
 const show_msg_modal = ref(false);
-const modal_msg = ref({ id: "", expand: { user: { id: "", avatar: "", username: "" } }, text: "" });
+const modal_msg = ref({ id: "", edited: false, expand: { user: { id: "", avatar: "", username: "" } }, text: "" });
 const editing_msg = ref(false);
 const editing_msg_id = ref("");
 
@@ -191,6 +193,7 @@ onMounted(async () => {
                 return msg.id == record.id
             })
             messages.value[index].text = record.text;
+            messages.value[index].edited = true;
         }
     })
 })
@@ -253,12 +256,12 @@ function edit_message(msg: any) {
     editing_msg_id.value = msg.id;
     editing_msg.value = true;
 }
-function send_button(msg_data:any){
-    if(editing_msg.value){
+function send_button(msg_data: any) {
+    if (editing_msg.value) {
         editMessage(editing_msg_id.value, msg_data);
         editing_msg.value = false;
     }
-    else{
+    else {
         sendMessage(msg_data);
     }
 }
