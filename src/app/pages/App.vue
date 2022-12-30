@@ -58,12 +58,13 @@
         </div>
         <div id="scroll" class="h-36 md:h-52 w-full md:w-3/5" style="float:right;"></div>
         <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col">
-            <div v-if="editing_msg" class="border-b-2 border-zinc-500 px-2 mb-2 flex flex-row" style="z-index:10;">
+            <div v-if="editing_msg || replying" class="border-b-2 border-zinc-500 px-2 mb-2 flex flex-row" style="z-index:10;">
                 <div class="w-1/2">
-                    Editing Message
+                    <span v-if="editing_msg">Editing Message</span>
+                    <span v-else-if="replying">Replying to Message</span>
                 </div>
                 <div class="w-1/2 flex flex-row-reverse">
-                    <button @click="editing_msg = false; input_field = ''"><i
+                    <button @click="close_indication()"><i
                             class="fa-solid fa-close fa-xl"></i></button>
                 </div>
             </div>
@@ -84,7 +85,7 @@
                 <div class="w-full flex justify-center">
                     <input v-model="input_field" class="border-2 border-none rounded text-black w-11/12 p-4" />
                     <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none"
-                        @click="$event.preventDefault; send_button({ text: input_field, user: user?.id, channel: channel.id, edited: editing_msg }); input_field = '';">Send!</button>
+                        @click="$event.preventDefault; send_button({ text: input_field, user: user?.id, channel: channel.id, edited: editing_msg, replying: replying_msg_id }); input_field = '';">Send!</button>
                 </div>
             </div>
         </div>
@@ -109,15 +110,19 @@
                             <div class="mt-2 flex flex-col gap-2 md:w-1/6 justify-center">
                                 <button v-if="user?.is_admin"
                                     class="bg-red-500 hover:bg-red-400 active:bg-red-600 transition-all p-2 rounded md:w-32"
-                                    @click="deleteMessage(modal_msg); show_msg_modal = false;">Delete <i
-                                        class="fa-solid fa-trash"></i></button>
+                                    @click="deleteMessage(modal_msg); close_popup()">Delete <i
+                                        class="fa-solid fa-trash ml-1"></i></button>
                                 <button v-if="user?.id == modal_msg.expand.user.id"
                                     class="bg-green-500 hover:bg-green-400 active:bg-green-600 transition-all p-2 rounded md:w-32"
-                                    @click="edit_message(modal_msg)">Edit <i class="fa-solid fa-pen"></i></button>
+                                    @click="edit_message(modal_msg)">Edit <i class="fa-solid fa-pen ml-1"></i></button>
                                 <button
                                     class="bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 transition-all p-2 rounded md:w-32"
                                     @click="copy_string(modal_msg.text)">Copy Text <i
-                                        class="fa-solid fa-copy"></i></button>
+                                        class="fa-solid fa-copy ml-1"></i></button>
+                                <!--<button
+                                    class="bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 transition-all p-2 rounded md:w-32"
+                                    @click="reply(modal_msg.id)">Reply <i
+                                        class="fa-solid fa-reply ml-1"></i></button>-->
                             </div>
                         </div>
                     </div>
@@ -153,9 +158,11 @@ const channel = ref();
 const channels = ref(<any>[]);
 
 const show_msg_modal = ref(false);
-const modal_msg = ref({ id: "", edited: false, expand: { user: { id: "", avatar: "", username: "" } }, text: "" });
+const modal_msg = ref({ id: "", edited: false, replying: [], expand: { user: { id: "", avatar: "", username: "" } }, text: "" });
 const editing_msg = ref(false);
 const editing_msg_id = ref("");
+const replying = ref(false);
+const replying_msg_id = ref();
 
 const loading_new_msg = ref(false);
 const at_end = ref(false);
@@ -278,20 +285,44 @@ function close_popup(){
     document.querySelector("body").style.overflow = '';
     show_msg_modal.value = false
 }
+function close_indication(){
+    if(editing_msg.value){
+        editing_msg.value = false;
+        input_field.value = '';
+    }
+    else if(replying.value){
+        replying.value = false;
+        replying_msg_id.value = null;
+    }
+}
+function scroll_to_msg(msg_id:string){
+    document.getElementById(msg_id)?.scrollIntoView({ behavior: "smooth", block: "start", inline: "center" });
+}
 function edit_message(msg: any) {
+    close_popup();
+    replying.value = false;
+    replying_msg_id.value = null;
     show_msg_modal.value = false;
     input_field.value = msg.text;
     editing_msg_id.value = msg.id;
     editing_msg.value = true;
 }
 function send_button(msg_data: any) {
-    if (editing_msg.value) {
+    if (editing_msg.value){
         editMessage(editing_msg_id.value, msg_data);
         editing_msg.value = false;
     }
-    else {
+    else{
         sendMessage(msg_data);
     }
+    replying_msg_id.value = null;
+    replying.value = false;
+}
+function reply(msg_id:string){
+    close_popup();
+    editing_msg.value = false;
+    replying_msg_id.value = msg_id;
+    replying.value = true;
 }
 window.onscroll = async function () {
     if (document.body.scrollTop === 0 && !loading_new_msg.value && is_mounted.value && !at_end.value){
