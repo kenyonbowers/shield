@@ -13,7 +13,7 @@ I feel it is important in our modern world to make sure people know what you wil
 Other than Shield being directed towards Independent Fundamental Baptists, there isn't much that makes it stand out. I don't like to say that but it is true. In it's current state, it has only the features an average chat app has.
 
 ## What Operating Systems is Shield on?
-Currently there is only a Windows and Android app. You can download it on the [Itch.io page](https://kenyon-bowers.itch.io/shield).
+Currently there is only a Windows and Android app. You can download it on the [Itch.io page](https://kenyonbwrs.itch.io/shield).
 
 ## Screenshots and Videos:
 <div>

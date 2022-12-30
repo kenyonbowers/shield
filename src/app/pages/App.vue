@@ -43,7 +43,7 @@
                     class="flex p-2 hover:bg-zinc-500 transition-all w-full" @click="open_popup(msg)"
                     style="jusify-content:left;">
                     <img v-if="msg.expand.user.avatar"
-                        :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id+'/'+msg.expand.user.avatar}`"
+                        :src="`https://shield.pockethost.io/api/files/users/${msg.expand.user.id + '/' + msg.expand.user.avatar}`"
                         class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
                     <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
                     <div class="ml-2">
@@ -56,9 +56,9 @@
                 </div>
             </div>
         </div>
-        <div id="scroll" class="h-32 md:h-48 w-full md:w-3/5" style="float:right;"></div>
+        <div id="scroll" class="h-36 md:h-52 w-full md:w-3/5" style="float:right;"></div>
         <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col">
-            <div v-if="editing_msg" class="border-b-2 border-zinc-500 px-2 mb-2 flex flex-row" style="z-index: 10;">
+            <div v-if="editing_msg" class="border-b-2 border-zinc-500 px-2 mb-2 flex flex-row" style="z-index:10;">
                 <div class="w-1/2">
                     Editing Message
                 </div>
@@ -88,32 +88,44 @@
                 </div>
             </div>
         </div>
-        <AppModal v-model="show_msg_modal" v-slot="{ close }" class="z-50">
-            <div class="flex p-2 transition-all w-full" style="jusify-content:left;">
-                <img v-if="modal_msg.expand.user.avatar"
-                    :src="`https://shield.pockethost.io/api/files/users/${modal_msg.expand.user.id+'/'+modal_msg.expand.user.avatar}`"
-                    class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                <div class="ml-2">
-                    <div class="text-sm">
-                        {{ modal_msg.expand.user.username }}
-                        <span v-if="modal_msg.edited">(Edited)</span>
+        <Transition>
+            <div v-if="show_msg_modal" class="z-50 fixed top-0 left-0 w-full h-full">
+                <div class="flex items-center h-full">
+                    <div class="w-full flex justify-center z-50">
+                        <div class="bg-zinc-600 p-2 w-11/12 md:w-1/3 rounded-lg">
+                            <div class="flex p-2 transition-all w-full" style="jusify-content:left;">
+                                <img v-if="modal_msg.expand.user.avatar"
+                                    :src="`https://shield.pockethost.io/api/files/users/${modal_msg.expand.user.id + '/' + modal_msg.expand.user.avatar}`"
+                                    class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                                <img v-else src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                                <div class="ml-2">
+                                    <div class="text-sm">
+                                        {{ modal_msg.expand.user.username }}
+                                        <span v-if="modal_msg.edited">(Edited)</span>
+                                    </div>
+                                    <span class="text-md ml-2 break-all">{{ modal_msg.text }}</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex flex-col gap-2 md:w-1/6 justify-center">
+                                <button v-if="user?.is_admin"
+                                    class="bg-red-500 hover:bg-red-400 active:bg-red-600 transition-all p-2 rounded md:w-32"
+                                    @click="deleteMessage(modal_msg); show_msg_modal = false;">Delete <i
+                                        class="fa-solid fa-trash"></i></button>
+                                <button v-if="user?.id == modal_msg.expand.user.id"
+                                    class="bg-green-500 hover:bg-green-400 active:bg-green-600 transition-all p-2 rounded md:w-32"
+                                    @click="edit_message(modal_msg)">Edit <i class="fa-solid fa-pen"></i></button>
+                                <button
+                                    class="bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 transition-all p-2 rounded md:w-32"
+                                    @click="copy_string(modal_msg.text)">Copy Text <i
+                                        class="fa-solid fa-copy"></i></button>
+                            </div>
+                        </div>
                     </div>
-                    <span class="text-md ml-2 break-all">{{ modal_msg.text }}</span>
+                    <div @click="close_popup()"
+                        class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-40"></div>
                 </div>
             </div>
-            <div class="mt-2 flex flex-col gap-2 md:w-1/6 justify-center">
-                <button v-if="user?.is_admin"
-                    class="bg-red-500 hover:bg-red-400 active:bg-red-600 transition-all p-2 rounded"
-                    @click="deleteMessage(modal_msg); show_msg_modal = false;">Delete <i
-                        class="fa-solid fa-trash"></i></button>
-                <button v-if="user?.id == modal_msg.expand.user.id"
-                    class="bg-green-500 hover:bg-green-400 active:bg-green-600 transition-all p-2 rounded"
-                    @click="edit_message(modal_msg)">Edit <i class="fa-solid fa-pen"></i></button>
-                <button class="bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 transition-all p-2 rounded"
-                    @click="copy_string(modal_msg.text)">Copy Text <i class="fa-solid fa-copy"></i></button>
-            </div>
-        </AppModal>
+        </Transition>
     </div>
 </template>
 <script setup lang="ts">
@@ -121,7 +133,6 @@ import { user, getMessages, sendMessage, deleteMessage, editMessage, getServers 
 import { useRouter } from "vue-router";
 import { onMounted, onDeactivated, ref, computed } from 'vue';
 import { useBreakpoint } from '../../browser/ViewportService'
-import AppModal from '../../components/AppModal.vue'
 import client from '../../api/PocketBaseClient';
 const router = useRouter();
 const { breakpoint } = useBreakpoint();
@@ -145,6 +156,11 @@ const show_msg_modal = ref(false);
 const modal_msg = ref({ id: "", edited: false, expand: { user: { id: "", avatar: "", username: "" } }, text: "" });
 const editing_msg = ref(false);
 const editing_msg_id = ref("");
+
+const loading_new_msg = ref(false);
+const at_end = ref(false);
+const next_page = ref(1);
+const is_mounted = ref(false);
 
 onMounted(async () => {
     if (user == null) {
@@ -190,12 +206,15 @@ onMounted(async () => {
         }
         else if (action == "update") {
             var index = messages.value.findIndex((msg: any) => {
-                return msg.id == record.id
+                return msg.id == record.id;
             })
             messages.value[index].text = record.text;
             messages.value[index].edited = true;
         }
     })
+    setTimeout(function () {
+        is_mounted.value = true;
+    }, 1000)
 })
 onDeactivated(async () => {
     unsubscribe();
@@ -227,12 +246,14 @@ async function change_server(srvr: any) {
     }
 }
 async function change_channels(chnl: any) {
+    next_page.value = 1;
     localStorage.setItem(`last_channel_${chnl.server}`, chnl.id);
     messages.value = [];
     channel.value = chnl;
-    (await getMessages(1, 20, channel.value.id)).items.forEach(el => {
+    (await getMessages(next_page.value, 20, channel.value.id)).items.forEach(el => {
         messages.value.push(el);
     });
+    next_page.value++;
     messages.value.reverse();
     setTimeout(function () {
         document.getElementById("scroll")?.scrollIntoView({ behavior: "smooth", block: "start", inline: "center" });
@@ -247,8 +268,15 @@ function format_text(text: string) {
     }
 }
 function open_popup(msg: any) {
+    //@ts-expect-error
+    document.querySelector("body").style.overflow = 'hidden';
     modal_msg.value = msg;
     show_msg_modal.value = true;
+}
+function close_popup(){
+    //@ts-expect-error
+    document.querySelector("body").style.overflow = '';
+    show_msg_modal.value = false
 }
 function edit_message(msg: any) {
     show_msg_modal.value = false;
@@ -265,19 +293,36 @@ function send_button(msg_data: any) {
         sendMessage(msg_data);
     }
 }
+window.onscroll = async function () {
+    if (document.body.scrollTop === 0 && !loading_new_msg.value && is_mounted.value && !at_end.value){
+        loading_new_msg.value = true;
+        await getMessages(next_page.value, 20, channel.value.id).then((data)=>{
+            var is_already = false;
+            data.items.forEach((el:any) => {
+                messages.value.forEach((element:any)=>{
+                    if(element.id == el.id){
+                        is_already = true;
+                    }
+                })
+            });
+            if(is_already){
+                at_end.value = true;
+            }
+            else{
+                next_page.value += 1;
+                messages.value = [...data.items.reverse(), ...messages.value];
+                loading_new_msg.value = false;
+            }
+        });
+    }
+}
 function copy_string(str: string) {
-    // Create new element
     var el = document.createElement('textarea');
-    // Set value (string to be copied)
     el.value = str;
-    // Set non-editable to avoid focus and move outside of view
     el.setAttribute('readonly', '');
     document.body.appendChild(el);
-    // Select text inside element
     el.select();
-    // Copy text to clipboard
     document.execCommand('copy');
-    // Remove temporary element
     document.body.removeChild(el);
 }
 </script>
