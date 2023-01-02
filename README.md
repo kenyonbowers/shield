@@ -17,9 +17,8 @@ Currently there is only a Windows and Android app. You can download it on the [I
 
 ## Screenshots and Videos:
 <div>
-    <img src="./README_Assets/screeshot_1.png" width="200"/>
+    <img src="./README_Assets/screenshot_1.png" width="200"/>
     <img src="./README_Assets/screenshot_2.png" width="200"/>
-    <img src="./README_Assets/video_1.gif" width="200"/>
 </div>
 
 ## Future Features:
