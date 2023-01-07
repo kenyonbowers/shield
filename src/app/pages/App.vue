@@ -360,6 +360,11 @@ function copy_string(str: string) {
 <style setup lang="css">
 body {
     background-color: rgb(82 82 91);
+    -ms-overflow-style: none;
+    overflow: -moz-scrollbars-none;
+}
+body::-webkit-scrollbar {
+    width: 0;
 }
 
 .top-nav-menu-item {
@@ -369,7 +374,6 @@ body {
 .top-nav-menu-item>ul {
     display: none;
     position: absolute;
-
 }
 
 .top-nav-menu-item:hover>ul {

@@ -16,9 +16,9 @@
                 <div v-if="tab_state == tab_states.account" class="p-2">
                     <button @click="logout().then(()=>{reload_page()}).catch(()=>{reload_page()})" class="bg-red-500 p-2 hover:bg-red-400 rounded transition-all">Logout</button>
                 </div>
-                <div v-else-if="tab_state == tab_states.profile">
+                <!--<div v-else-if="tab_state == tab_states.profile">
             
-                </div>
+                </div>-->
             </div>
         </div>
     </div>
@@ -33,7 +33,7 @@ const tab_state = ref();
 const router = useRouter();
 const tab_states = {
     account: "Account",
-    profile: "Profile"
+    //profile: "Profile"
 };
 onMounted(async()=>{
     if(user == null){
