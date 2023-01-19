@@ -1,0 +1,2 @@
+get one record = `baseUrl/api/collections/collectionNameOrId/records/recordId`
+list records = `baseUrl/api/collections/collectionNameOrId/records?page=number&perPage=number&filter=string&sort=string&expand=string`

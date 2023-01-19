@@ -1,12 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shield - App</title>
+    <script src="./js/tailwindcss.js"></script>
 </head>
+
 <body>
-    
+    <div id="msgHolder"></div>
+    <div class="w-full flex justify-center">
+        <input id="msgInput" class="border-2 border-none rounded text-black w-11/12 p-4" />
+        <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none" id="msgButton">Send!</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/gh/pocketbase/js-sdk@master/dist/pocketbase.umd.js"></script>
+    <script>
+        const client = new PocketBase("https://shield.pockethost.io");
+        var unsubscribe;
+        var messages = [];
+        let innerHTML = "";
+        var msgHolder = document.getElementById("msgHolder");
+        var msgInput = document.getElementById("msgInput");
+        var msgButton = document.getElementById("msgButton");
+
+        msgButton.addEventListener("click", async function () {
+            createMessage();
+        })
+
+        window.onload = async function () {
+            await client.collection('testing').getList(1, 20).then((results) => {
+                messages = results.items;
+            });
+            refreshMessages();
+            unsubscribe = await client.collection('testing').subscribe("*", async ({ action, record }) => {
+                if (action == "create") {
+                    console.log("yep")
+                    //const msg_user = await client.collection("users").getOne(record.user);
+                    //record.expand = { user: msg_user }
+                    messages = [...messages, record];
+                    console.log(messages)
+                    //if (msg_user.id == user?.id) {
+                    //  setTimeout(function () {
+                    //document.getElementById("scroll")?.scrollIntoView({ behavior: "smooth", block: "start", inline: "center" });
+                    //}, 500)
+                    //}
+                    refreshMessages();
+                }
+                else if (action == "delete") {
+                    console.log(messages.filter((msg) => msg.id !== record.id))
+                    messages = messages.filter((msg) => msg.id !== record.id)
+                    refreshMessages();
+                }
+                else if (action == "update") {
+                    var index = messages.findIndex((msg) => {
+                        return msg.id == record.id;
+                    })
+                    messages[index].text = record.text;
+                    messages[index].edited = true;
+                    refreshMessages();
+                }
+            })
+        }
+        window.onclose = async function () {
+            unsubscribe();
+        }
+
+        async function refreshMessages() {
+            innerHTML = "";
+            messages.forEach((msg, index) => {
+                if (index > 0) {
+                    innerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;"><img src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${"msg.expand.user.username"}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
+                }
+                else {
+                    innerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;"><img src="/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${"msg.expand.user.username"}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
+                }
+            })
+            msgHolder.innerHTML = innerHTML;
+        }
+        function createMessage() {
+            client.collection('testing').create({
+                text: msgInput.value,
+            });
+            msgInput.value = "";
+        }
+    </script>
 </body>
+
 </html>
+<style>
+    body {
+        background-color: rgb(82 82 91);
+        -ms-overflow-style: none;
+        overflow: -moz-scrollbars-none;
+    }
+
+    body::-webkit-scrollbar {
+        width: 0;
+    }
+
+    .top-nav-menu-item {
+        position: relative;
+    }
+
+    #msgInput {
+        ;
+    }
+</style>

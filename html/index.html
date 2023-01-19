@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shield - Home</title>
 </head>
+
 <body>
-    <script type="module">
-        import PocketBase from './js/PocketBase.js'
-        const client = new PocketBase("https://shield.pockethost.io")
+    <script src="https://cdn.jsdelivr.net/gh/pocketbase/js-sdk@master/dist/pocketbase.umd.js"></script>
+    <script>
+        const client = new PocketBase("https://shield.pockethost.io");
+
+        client.collection('testing').getOne("obi69fdbgiu051z", {}).then((result)=>{
+            console.log(result)
+        })
     </script>
 </body>
+
 </html>
