@@ -37,7 +37,7 @@ const routes = [
 ]
 
 const router = VueRouter.createRouter({
-  history: VueRouter.createWebHashHistory(),
+  history: VueRouter.createWebHistory(),
   routes: routes,
   scrollBehavior(to, from, savedPosition) {
 

@@ -85,7 +85,7 @@
                 <div class="w-full flex justify-center">
                     <input v-model="input_field" class="border-2 border-none rounded text-black w-11/12 p-4" />
                     <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none"
-                        @click="$event.preventDefault; send_button({ text: input_field, user: user?.id, channel: channel.id, edited: editing_msg, replying: replying_msg_id }); input_field = '';">Send!</button>
+                        @click.prevent="send_button({ text: input_field, user: user?.id, channel: channel.id, edited: editing_msg, replying: replying_msg_id }); input_field = '';">Send!</button>
                 </div>
             </div>
         </div>
@@ -168,6 +168,13 @@ const loading_new_msg = ref(false);
 const at_end = ref(false);
 const next_page = ref(1);
 const is_mounted = ref(false);
+
+document.addEventListener("keydown", function (e) {
+    if (e.code === "Enter") {
+        send_button({ text: input_field.value, user: user?.id, channel: channel.value.id, edited: editing_msg.value, replying: replying_msg_id.value });
+        input_field.value = '';
+    }
+});
 
 onMounted(async () => {
     if (user == null) {
