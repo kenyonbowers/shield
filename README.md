@@ -1,7 +1,4 @@
-<div align="center">
-    <img src="./README_Assets/logo.png" width="100" style="border-radius:15%;"/>
-    <h1>Shield</h1>
-</div>
+<img src="./README_Assets/banner.png" width="100%"/>
 
 ## What is it?
 Shield is a real-time chat app designed to give Independent Fundamental Baptists a place they can speak openly about Jesus without the worry of being canceled by big corporations.
