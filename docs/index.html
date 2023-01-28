@@ -6,17 +6,45 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shield - Home</title>
+    <script src="./js/tailwindcss.js"></script>
+    <link rel="icon" type="image/x-icon" href="./img/icon.png">
+    <script src="https://kit.fontawesome.com/8dd3442808.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
+    <div class="w-full h-screen flex justify-center font-title text-white">
+        <div class="flex items-center h-full" style="text-align:center;">
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center flex-col mb-2">
+                    <img src="./img/icon.png" class="w-24 h-24 rounded-lg" />
+                    <p class="text-2xl">Shield</p>
+                </div>
+                <div class="flex flex-row gap-2">
+                    <a href="./login.html" class="self-center bg-blue-500 p-2 rounded w-20">Login</a>
+                    <a href="./signup.html" class="self-center bg-zinc-500 p-2 rounded w-20">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/gh/pocketbase/js-sdk@master/dist/pocketbase.umd.js"></script>
     <script>
+        window.onload = async function(){
+            if(localStorage.getItem("pocketbase_auth")){
+                window.location = "./app.html";
+            }
+        }
         const client = new PocketBase("https://shield.pockethost.io");
 
-        client.collection('testing').getOne("obi69fdbgiu051z", {}).then((result)=>{
+        client.collection('testing').getOne("obi69fdbgiu051z", {}).then((result) => {
             console.log(result)
         })
     </script>
 </body>
 
 </html>
+<style>
+    body {
+        background-color: rgb(82 82 91);
+        color: white;
+    }
+</style>

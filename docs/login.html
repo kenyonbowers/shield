@@ -1,12 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shield - Login</title>
+    <script src="./js/tailwindcss.js"></script>
+    <link rel="icon" type="image/x-icon" href="./img/icon.png">
+    <script src="https://kit.fontawesome.com/8dd3442808.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
-    
+    <div class="w-full h-screen flex justify-center font-title text-white">
+        <div class="fixed top-0 left-0 p-4">
+            <a href="./index.html"><i class="fa-solid fa-arrow-left fa-2xl"></i></a>
+        </div>
+        <div class="flex items-center h-full" style="text-align:center;">
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center flex-col mb-2">
+                    <p class="text-2xl underline">Login</p>
+                </div>
+                <div class="flex flex-col gap-2 text-black">
+                    <input class="border-black border-2 p-1" placeholder="Email" type="email" id="emailInput" />
+                    <input class="border-black border-2 p-1" placeholder="Password" type="password"
+                        id="passwordInput" />
+                    <button id="loginButton"
+                        class="self-center bg-blue-500 p-2 rounded w-20 text-white">Login!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/gh/pocketbase/js-sdk@master/dist/pocketbase.umd.js"></script>
+    <script>
+        window.onload = async function(){
+            if(localStorage.getItem("pocketbase_auth")){
+                window.location = "./app.html";
+            }
+        }
+        
+        const client = new PocketBase("https://shield.pockethost.io");
+        var loginButton = document.getElementById("loginButton");
+        var emailInput = document.getElementById("emailInput");
+        var passwordInput = document.getElementById("passwordInput");
+        loginButton.addEventListener("click", async function () {
+            login(emailInput.value, passwordInput.value);
+        })
+        async function login(email, password) {
+            if (email.includes("@")) {
+                await client.collection('users').authWithPassword(email, password).then(()=>{
+                    window.location.reload();
+                });
+            }
+        }
+    </script>
 </body>
+
 </html>
+<style>
+    body {
+        background-color: rgb(82 82 91);
+        color: white;
+    }
+</style>
