@@ -26,18 +26,12 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/gh/pocketbase/js-sdk@master/dist/pocketbase.umd.js"></script>
     <script>
         window.onload = async function(){
             if(localStorage.getItem("pocketbase_auth")){
                 window.location = "./app.html";
             }
         }
-        const client = new PocketBase("https://shield.pockethost.io");
-
-        client.collection('testing').getOne("obi69fdbgiu051z", {}).then((result) => {
-            console.log(result)
-        })
     </script>
 </body>
 
