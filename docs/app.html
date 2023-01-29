@@ -13,10 +13,27 @@
 
 <body>
     <div id="msgHolder"></div>
-    <div class="h-20"></div>
-    <div class="w-full flex justify-center fixed bottom-0 p-4 bg-zinc-700 h-20">
-        <input id="msgInput" class="border-2 border-none rounded text-black w-11/12 p-4" />
-        <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none" id="msgButton">Send!</button>
+    <div id="scroll" class="h-36 md:h-52 w-full md:w-3/5" style="float:right;"></div>
+    <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col">
+        <div class="h-32 md:h-48">
+            <div class="w-full flex justify-center flex-row gap-2 mb-2">
+                <div v-for="srvr in servers" @click="change_server(srvr)" :key="srvr.id" :id="srvr.id">
+                    <img v-if="srvr.id == server.id"
+                        :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`"
+                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-lg" />
+                    <img v-else-if="srvr.id == 'servers'" :src="`/plus.png`"
+                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                    <img v-else-if="srvr.id == 'settings'" :src="`/gear.png`"
+                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                    <img v-else :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`"
+                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
+                </div>
+            </div>
+            <div class="w-full flex justify-center">
+                <input id="msgInput" class="border-2 border-none rounded text-black w-11/12 p-4" />
+                <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none" id="msgButton">Send!</button>
+            </div>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/gh/pocketbase/js-sdk@master/dist/pocketbase.umd.js"></script>
     <script>
@@ -27,6 +44,7 @@
         var msgHolder = document.getElementById("msgHolder");
         var msgInput = document.getElementById("msgInput");
         var msgButton = document.getElementById("msgButton");
+        var scrollElement = document.getElementById("scroll");
 
         msgButton.addEventListener("click", async function () {
             createMessage();
@@ -40,7 +58,7 @@
         });
 
         window.onload = async function () {
-            if(!localStorage.getItem("pocketbase_auth")){
+            if (!localStorage.getItem("pocketbase_auth")) {
                 window.location = "./index.html";
             }
             await client.collection('messages').getList(1, 20, { expand: "user" }).then((results) => {
@@ -81,13 +99,16 @@
             innerHTML = "";
             messages.forEach((msg, index) => {
                 if (index > 0) {
-                    innerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
+                    innerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
                 }
                 else {
-                    innerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
+                    innerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
                 }
             })
             msgHolder.innerHTML = innerHTML;
+            setTimeout(function () {
+                scrollElement.scrollIntoView({ behavior: "smooth", block: "start", inline: "center" });
+            }, 500)
         }
         function createMessage() {
             client.collection('testing').create({
