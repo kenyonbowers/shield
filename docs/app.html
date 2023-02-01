@@ -16,19 +16,7 @@
     <div id="scroll" class="h-36 md:h-52 w-full md:w-3/5" style="float:right;"></div>
     <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col">
         <div class="h-32 md:h-48">
-            <div class="w-full flex justify-center flex-row gap-2 mb-2">
-                <div v-for="srvr in servers" @click="change_server(srvr)" :key="srvr.id" :id="srvr.id">
-                    <img v-if="srvr.id == server.id"
-                        :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-lg" />
-                    <img v-else-if="srvr.id == 'servers'" :src="`/plus.png`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                    <img v-else-if="srvr.id == 'settings'" :src="`/gear.png`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                    <img v-else :src="`https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}`"
-                        class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" />
-                </div>
-            </div>
+            <div id="srvrHolder" class="w-full flex justify-center flex-row gap-2 mb-2"></div>
             <div class="w-full flex justify-center">
                 <input id="msgInput" class="border-2 border-none rounded text-black w-11/12 p-4" />
                 <button class="ml-2 bg-blue-500 rounded pl-2 pr-2 border-none" id="msgButton">Send!</button>
@@ -37,6 +25,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/gh/pocketbase/js-sdk@master/dist/pocketbase.umd.js"></script>
     <script>
+        // Variables
         const client = new PocketBase("https://shield.pockethost.io");
         var unsubscribe;
         var messages = [];
@@ -44,16 +33,16 @@
         var channel;
         var servers = [];
         var server;
-        let innerHTML = "";
         var msgHolder = document.getElementById("msgHolder");
         var msgInput = document.getElementById("msgInput");
         var msgButton = document.getElementById("msgButton");
+        var srvrHolder = document.getElementById("srvrHolder");
         var scrollElement = document.getElementById("scroll");
 
+        // Event Listeners
         msgButton.addEventListener("click", async function () {
             createMessage();
         })
-
         document.addEventListener("keydown", function (e) {
             if (e.code === "Enter") {
                 createMessage();
@@ -61,11 +50,13 @@
             }
         });
 
+        // On Load/Close
         window.onload = async function () {
             if (!localStorage.getItem("pocketbase_auth")) {
                 window.location = "./index.html";
             }
-            servers = (await client.collection("servers").getList(1, 20, { sort: "-created", expand: "categories.channels", filter: `members~"${client.authStore.model.id}"` })).items;
+            servers = await getServers();
+            await refreshServers();
             await changeServer(servers[2]);
             refreshMessages();
             unsubscribe = await client.collection('messages').subscribe("*", async ({ action, record }) => {
@@ -94,21 +85,26 @@
                 }
             })
         }
-        window.onclose = async function () {
+        window.onclose = function () {
             unsubscribe();
         }
 
+        // Message Functions
+        async function getMessages(page, per_page, channel_id) {
+            var messages = await client.collection("messages").getList(page, per_page, { sort: "-created", expand: "user", filter: `channel.id="${channel_id}"` });
+            return messages.items;
+        }
         async function refreshMessages() {
-            innerHTML = "";
+            var msgInnerHTML = "";
             messages.forEach((msg, index) => {
                 if (index > 0) {
-                    innerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
+                    msgInnerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
                 }
                 else {
-                    innerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
+                    msgInnerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
                 }
             })
-            msgHolder.innerHTML = innerHTML;
+            msgHolder.innerHTML = msgInnerHTML;
             setTimeout(function () {
                 scrollElement.scrollIntoView({ behavior: "smooth", block: "start", inline: "center" });
             }, 500)
@@ -120,7 +116,18 @@
             msgInput.value = "";
         }
 
-
+        // Server Functions
+        async function getServers() {
+            var srvrs = await client.collection("servers").getList(1, 20, { sort: "-created", expand: "categories.channels", filter: `members~"${client.authStore.model?.id}"` });
+            return srvrs.items;
+        }
+        async function refreshServers(){
+            var srvrInnerHTML = "";
+            servers.forEach((srvr)=>{
+                srvrInnerHTML += `<div @click="change_server(srvr)" id="${srvr.id}"><img src="https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-lg" /></div>`;
+            });
+            srvrHolder.innerHTML = srvrInnerHTML;
+        }
         async function changeServer(srvr) {
             if (srvr.id != "servers" && srvr.id != "settings" && srvr.id != undefined) {
                 localStorage.setItem("last_server", srvr.id);
@@ -146,6 +153,8 @@
                 router.push(`/${srvr.id}`)
             }
         }
+
+        // Channel Functions
         async function changeChannel(chnl) {
             next_page = 1;
             localStorage.setItem(`last_channel_${chnl.server}`, chnl.id);
@@ -158,11 +167,6 @@
             setTimeout(function () {
                 document.getElementById("scroll")?.scrollIntoView({ behavior: "smooth", block: "start", inline: "center" });
             }, 500)
-        }
-        async function getMessages(page, per_page, channel_id) {
-            var messages = await client.collection("messages").getList(page, per_page, { sort: "-created", expand: "user", filter: `channel.id="${channel_id}"` });
-            console.log(messages.items)
-            return messages.items;
         }
     </script>
 </body>
