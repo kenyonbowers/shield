@@ -56,6 +56,20 @@
                 window.location = "./index.html";
             }
             servers = await getServers();
+            if (servers[0] != undefined) {
+                if (localStorage.getItem("last_server")) {
+                    server = servers[servers.findIndex(function (el) {
+                        return el.id === localStorage.getItem("last_server")
+                    })];
+                    if (server == undefined) {
+                        server = servers[0];
+                    }
+                }
+                else {
+                    server = servers[0];
+                }
+                changeServer(server);
+            }
             await refreshServers();
             await changeServer(servers[2]);
             refreshMessages();
@@ -98,10 +112,10 @@
             var msgInnerHTML = "";
             messages.forEach((msg, index) => {
                 if (index > 0) {
-                    msgInnerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
+                    msgInnerHTML += `<div class="flex p-2 hover:bg-zinc-500 transition-all w-full" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div class="text-sm">${msg.expand.user.username}</div><span class="ml-2 break-all">${msg.text}</span></div></div>`;
                 }
                 else {
-                    msgInnerHTML += `<div style="display: flex; padding: 0.5rem; width: 100%; jusify-content:left;" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div style="font-size: 0.875rem; line-height: 1.25rem;">${msg.expand.user.username}</div><span style="margin-left: 0.5rem; word-break: break-all;">${msg.text}</span></div></div>`;
+                    msgInnerHTML += `<div class="flex p-2 hover:bg-zinc-500 transition-all w-full" id="${msg.id}"><img src="./img/icon.png" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /><div class="ml-2"><div class="text-sm">${msg.expand.user.username}</div><span class="ml-2 break-all">${msg.text}</span></div></div>`;
                 }
             })
             msgHolder.innerHTML = msgInnerHTML;
@@ -121,12 +135,23 @@
             var srvrs = await client.collection("servers").getList(1, 20, { sort: "-created", expand: "categories.channels", filter: `members~"${client.authStore.model?.id}"` });
             return srvrs.items;
         }
-        async function refreshServers(){
+        async function refreshServers() {
             var srvrInnerHTML = "";
-            servers.forEach((srvr)=>{
-                srvrInnerHTML += `<div @click="change_server(srvr)" id="${srvr.id}"><img src="https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-lg" /></div>`;
+            servers.forEach((srvr) => {
+                if (server.id == srvr.id) {
+                    srvrInnerHTML += `<div id="${srvr.id}"><img src="https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-lg" /></div>`;
+                }
+                else {
+                    srvrInnerHTML += `<div id="${srvr.id}"><img src="https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /></div>`;
+                }
             });
             srvrHolder.innerHTML = srvrInnerHTML;
+            servers.forEach((srvr) => {
+                document.getElementById(srvr.id).addEventListener("click", async function () {
+                    await changeServer(srvr);
+                    refreshServers();
+                });
+            });
         }
         async function changeServer(srvr) {
             if (srvr.id != "servers" && srvr.id != "settings" && srvr.id != undefined) {

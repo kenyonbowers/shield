@@ -51,7 +51,7 @@
                             {{ msg.expand.user.username }}
                             <span v-if="msg.edited">(Edited)</span>
                         </div>
-                        <span class="text-md ml-2 break-all">{{ msg.text }}</span>
+                        <span class="ml-2 break-all">{{ msg.text }}</span>
                     </div>
                 </div>
             </div>
@@ -104,7 +104,7 @@
                                         {{ modal_msg.expand.user.username }}
                                         <span v-if="modal_msg.edited">(Edited)</span>
                                     </div>
-                                    <span class="text-md ml-2 break-all">{{ modal_msg.text }}</span>
+                                    <span class="ml-2 break-all">{{ modal_msg.text }}</span>
                                 </div>
                             </div>
                             <div class="mt-2 flex flex-col gap-2 md:w-1/6 justify-center">
