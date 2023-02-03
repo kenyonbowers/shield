@@ -12,8 +12,14 @@
 </head>
 
 <body>
-    <div class="w-full md:w-3/4 md:w-5/8" id="msgHolder"></div>
-    <div id="scroll" class="h-36 md:h-52 w-full md:w-3/5" style="float:right;"></div>
+    <div class="flex flex-row">
+        <div id="chnlHolder" class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-4 pt-2 break-all"></div>
+        <div class="bg-zinc-500 h-full w-1/4 md:w-3/8 pl-4 pt-2"></div>
+        <div class="w-full md:w-3/4 md:w-5/8">
+            <div class="w-full" id="msgHolder"></div>
+            <div id="scroll" class="h-36 md:h-52 w-full" style="float:right;"></div>
+        </div>
+    </div>
     <div class="w-full p-2 fixed bottom-0 left-0 bg-zinc-700 flex flex-col">
         <div class="h-32 md:h-48">
             <div id="srvrHolder" class="w-full flex justify-center flex-row gap-2 mb-2"></div>
@@ -29,6 +35,7 @@
         const client = new PocketBase("https://shield.pockethost.io");
         var unsubscribe;
         var messages = [];
+        var categories = [];
         var channels = [];
         var channel;
         var servers = [];
@@ -37,6 +44,7 @@
         var msgInput = document.getElementById("msgInput");
         var msgButton = document.getElementById("msgButton");
         var srvrHolder = document.getElementById("srvrHolder");
+        var chnlHolder = document.getElementById("chnlHolder");
         var scrollElement = document.getElementById("scroll");
 
         // Event Listeners
@@ -164,6 +172,7 @@
                     server.expand.categories[index].expand.channels.forEach((el) => {
                         channels.push(el);
                     });
+                    refreshChannels();
                 });
                 if (localStorage.getItem(`last_channel_${srvr.id}`) != undefined) {
                     changeChannel(channels[channels.findIndex(function (el) {
@@ -180,6 +189,22 @@
         }
 
         // Channel Functions
+        async function refreshChannels() {
+            var chnlInnerHTML = "";
+            categories.forEach((ctgry) => {
+                chnlInnerHTML += `<div class="mb-2"><span class="font-bold">${formatText(ctgry.name)}</span>`;
+                ctgry.expand.channels.forEach((chnl) => {
+                    chnlInnerHTML += `<div><button id="btn-${chnl.id}"><i class="fa-solid fa-bars"></i> ${formatText(chnl.name)}</button></div>`;
+                });
+                chnlInnerHTML += "</div>"
+            });
+            chnlHolder.innerHTML = chnlInnerHTML;
+            channels.forEach((chnl)=>{
+                document.getElementById(`btn-${chnl.id}`).addEventListener("click", async function(){
+                    await changeChannel(chnl);
+                });
+            });
+        }
         async function changeChannel(chnl) {
             next_page = 1;
             localStorage.setItem(`last_channel_${chnl.server}`, chnl.id);
@@ -192,6 +217,16 @@
             setTimeout(function () {
                 document.getElementById("scroll")?.scrollIntoView({ behavior: "smooth", block: "start", inline: "center" });
             }, 500)
+        }
+
+        // Other
+        function formatText(text) {
+            if (text.length > 25) {
+                return text.slice(0, 22) + "...";
+            }
+            else {
+                return text;
+            }
         }
     </script>
 </body>
@@ -212,6 +247,4 @@
     .top-nav-menu-item {
         position: relative;
     }
-
-    #msgInput {}
 </style>
