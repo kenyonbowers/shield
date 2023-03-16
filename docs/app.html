@@ -13,9 +13,10 @@
 
 <body>
     <div class="flex flex-row">
-        <div id="chnlHolder" class="bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-4 pt-2 break-all"></div>
-        <div class="bg-zinc-500 h-full w-1/4 md:w-3/8 pl-4 pt-2"></div>
-        <div class="w-full md:w-3/4 md:w-5/8">
+        <div id="chnlHolder"
+            class="hidden md:block bg-zinc-500 fixed top-0 left-0 h-full w-1/4 md:w-3/8 px-4 pt-2 break-all"></div>
+        <div class="hidden md:block h-full w-1/4 md:w-3/8 pl-4 pt-2"></div>
+        <div class="w-full md:w-3/4 lg:w-5/8">
             <div class="w-full" id="msgHolder"></div>
             <div id="scroll" class="h-36 md:h-52 w-full" style="float:right;"></div>
         </div>
@@ -71,6 +72,9 @@
                     })];
                     if (server == undefined) {
                         server = servers[0];
+                    }
+                    else {
+                        await refreshServers(server);
                     }
                 }
                 else {
@@ -150,14 +154,16 @@
                     srvrInnerHTML += `<div id="${srvr.id}"><img src="https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-lg" /></div>`;
                 }
                 else {
-                    srvrInnerHTML += `<div id="${srvr.id}"><img src="https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}" class="min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /></div>`;
+                    srvrInnerHTML += `<div id="${srvr.id}"><img src="https://shield.pockethost.io/api/files/servers/${srvr.id}/${srvr.icon}" class="cursor-pointer min-w-12 min-h-12 max-w-12 max-h-12 rounded-full" /></div>`;
                 }
             });
             srvrHolder.innerHTML = srvrInnerHTML;
             servers.forEach((srvr) => {
                 document.getElementById(srvr.id).addEventListener("click", async function () {
-                    await changeServer(srvr);
-                    refreshServers();
+                    if (srvr.id != server.id) {
+                        await changeServer(srvr);
+                        refreshServers();
+                    }
                 });
             });
         }
@@ -199,8 +205,8 @@
                 chnlInnerHTML += "</div>"
             });
             chnlHolder.innerHTML = chnlInnerHTML;
-            channels.forEach((chnl)=>{
-                document.getElementById(`btn-${chnl.id}`).addEventListener("click", async function(){
+            channels.forEach((chnl) => {
+                document.getElementById(`btn-${chnl.id}`).addEventListener("click", async function () {
                     await changeChannel(chnl);
                 });
             });
